@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        TEMP_PASSWORD = ""
+    }
+
+    stages {
+        stage('Input Parameters') {
+            steps {
+                script {
+                    // Definir los parámetros de entrada
+                    def userInput = input(
+                        id: 'userInput', // an identifier for this input step
+                        message: 'Please provide user information',
+                        parameters: [
+                            string(name: 'LOGIN', defaultValue: '', description: 'Unique identifier (name.lastname)'),
+                            string(name: 'FULL_NAME', defaultValue: '', description: 'User full name'),
+                            choice(name: 'DEPARTMENT', choices: ['contabilidad', 'finanzas', 'tecnología'], description: 'User department')
+                        ]
+                    )
+                    // Asignar valores a variables
+                    env.LOGIN = userInput.LOGIN
+                    env.FULL_NAME = userInput.FULL_NAME
+                    env.DEPARTMENT = userInput.DEPARTMENT
+                }
+            }
+        }
+
+        stage('Generate Temporary Password') {
+            steps {
+                script {
+                    // Generar una contraseña temporal
+                    TEMP_PASSWORD = UUID.randomUUID().toString().substring(0, 8) // Generar una contraseña aleatoria
+                    echo "Generated temporary password: ${TEMP_PASSWORD}"
+                }
+            }
+        }
+
+        stage('Create User') {
+            steps {
+                script {
+                    // Crear el usuario en el sistema Linux
+                    sh """
+                        sudo useradd -m -s /bin/bash ${LOGIN} -c "${FULL_NAME}" -G ${DEPARTMENT}
+                        echo "${LOGIN}:${TEMP_PASSWORD}" | sudo chpasswd
+                        sudo chage -d 0 ${LOGIN}  # Forzar el cambio de contraseña en el primer inicio de sesión
+                    """
+                }
+            }
+        }
+
+        stage('Send Email') {
+            steps {
+                script {
+                    // Aquí se debería incluir la lógica para enviar un email al usuario
+                    // Ejemplo ficticio (reemplazar por la configuración real)
+                    sh """
+                        echo "Hola ${FULL_NAME}, tu cuenta ha sido creada. Tu contraseña temporal es: ${TEMP_PASSWORD}" | mail -s "Creación de cuenta" user@example.com
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline completed."
+        }
+    }
+}
