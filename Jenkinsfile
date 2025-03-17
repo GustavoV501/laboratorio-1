@@ -44,7 +44,7 @@ pipeline {
                     // Crear el usuario 
                     sh """
                         sudo useradd -m -s /bin/bash -G "${DEPARTMENT}" -c "${FULL_NAME}" "${LOGIN}"
-                        echo "${LOGIN}:${contra_temp}" | sudo -S chpasswd
+                        echo "${LOGIN}:${contra_temp}" sudo chpasswd
                         sudo chage -d 0 ${LOGIN}  
                     """
                 }
