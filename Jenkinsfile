@@ -53,7 +53,7 @@ pipeline {
                 script {
                     // Crear el usuario 
                     sh """
-                        sudo useradd -m -s /bin/bash -G "${DEPARTMENT}" -c "${FULL_NAME}" "${LOGIN}"
+                        sudo useradd -m -s /bin -G "${DEPARTMENT}" -c "${FULL_NAME}" "${LOGIN}"
                         echo "${LOGIN}:${contra_temp}"  sudo chpasswd
                         sudo chage -d 0 ${LOGIN}  
                     """
