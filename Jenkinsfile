@@ -37,6 +37,16 @@ pipeline {
                 }
             }
         }
+        stage('Email') {
+            steps {
+                script {
+                    // 👉 Enviar correo (requiere `mailutils` instalado)
+                    sh """
+                        echo "Hola ${FULL_NAME}, la cuenta se creó correctamente. La contraseña temporal es: ${contra_temp}" | mail -s "Creación de cuenta" usuarioprueba@jenlabo.com
+                    """
+                }
+            }
+        }
 
         stage('Usuario nuevo') {
             steps {
@@ -53,16 +63,7 @@ pipeline {
             }
         }
 
-        stage('Email') {
-            steps {
-                script {
-                    // 👉 Enviar correo (requiere `mailutils` instalado)
-                    sh """
-                        echo "Hola ${FULL_NAME}, la cuenta se creó correctamente. La contraseña temporal es: ${contra_temp}" | mail -s "Creación de cuenta" usuarioprueba@jenlabo.com
-                    """
-                }
-            }
-        }
+        
     }
 
     post {
